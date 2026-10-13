@@ -1,0 +1,452 @@
+<title>Nông Trại Vui Vẻ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Concept: a cartoon farm by day that slides into an arcade at night. Chunky outlined game UI, LED marquee bulbs, rainbow LED rims on buttons. */
+:root{
+  color-scheme: light;
+  --outline:#16255a;
+  --sky-1:#4cbfff;
+  --sky-2:#a9e5ff;
+  --sky-3:#e2f7ff;
+  --grass:#5fd04a;
+  --grass-2:#3fae3a;
+  --grass-deep:#1f7a3a;
+  --sun:#ffd23f;
+  --pink:#ff6fa5;
+  --orange:#ff9a3c;
+  --violet:#8b6cff;
+  --mint:#33e0a1;
+  --night:#0b1230;
+  --night-2:#151f4d;
+  --ink-dark:#12204f;
+  --ink-light:#f1f6ff;
+  --muted-light:#b4c2ea;
+  --font-display:'Fredoka','Trebuchet MS',system-ui,sans-serif;
+  --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@property --ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+*{box-sizing:border-box}
+body{
+  background:var(--night);
+  color:var(--ink-light);
+  font-family:var(--font-body);
+  font-weight:600;
+  font-size:17px;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+a{color:inherit}
+p{margin:0}
+h1,h2,h3{font-family:var(--font-display);margin:0;line-height:1.08;text-wrap:balance}
+:focus-visible{outline:4px solid var(--outline);outline-offset:3px;border-radius:10px}
+.wrap{max-width:1100px;margin-inline:auto;padding-inline:16px}
+
+/* ============ DAY ============ */
+.day{
+  position:relative;overflow:hidden;
+  background:linear-gradient(180deg,var(--sky-1) 0%,var(--sky-2) 55%,var(--sky-3) 100%);
+  color:var(--ink-dark);
+}
+.sun{position:absolute;right:6%;top:40px;width:230px;height:230px;pointer-events:none}
+.sun .rays{transform-origin:115px 115px;animation:rot 40s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.cloud{position:absolute;pointer-events:none;opacity:.95;animation:cloud linear infinite}
+.cloud svg{display:block}
+.c1{top:150px;left:-160px;animation-duration:70s}
+.c2{top:300px;left:-160px;animation-duration:95s;animation-delay:-40s;transform:scale(.7)}
+.c3{top:110px;left:-160px;animation-duration:120s;animation-delay:-80s;transform:scale(.55)}
+@keyframes cloud{to{transform:translateX(calc(100vw + 360px)) scale(var(--s,1))}}
+
+.top{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:14px;padding-block:18px 0;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:1.35rem;text-decoration:none;color:var(--outline)}
+.brand svg{width:44px;height:44px}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{padding:8px 16px;border-radius:999px;text-decoration:none;font-weight:800;font-size:.95rem;background:#fff;color:var(--outline);border:3px solid var(--outline);box-shadow:0 4px 0 var(--outline);transition:transform .12s,box-shadow .12s}
+.nav a:hover{transform:translateY(2px);box-shadow:0 2px 0 var(--outline)}
+
+.hero{position:relative;z-index:2;display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center;padding-block:36px 90px}
+
+/* marquee bulb sign */
+.sign{position:relative;display:inline-block;padding:9px 20px;border-radius:14px;background:var(--outline);color:#fff;font-family:var(--font-display);font-weight:600;font-size:.95rem;letter-spacing:.1em;text-transform:uppercase;margin:7px 0 0 7px}
+.sign::before,.sign::after{
+  content:"";position:absolute;inset:-7px;border-radius:20px;padding:7px;pointer-events:none;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+}
+.sign::before{background:radial-gradient(circle,var(--sun) 0 2.800px,transparent 3.400px) 0 0/14px 14px;filter:drop-shadow(0 0 4px var(--sun));animation:bulbA 1s steps(1) infinite}
+.sign::after{background:radial-gradient(circle,var(--pink) 0 2.800px,transparent 3.400px) 7px 7px/14px 14px;filter:drop-shadow(0 0 4px var(--pink));animation:bulbB 1s steps(1) infinite}
+@keyframes bulbA{0%{opacity:1}50%{opacity:.25}}
+@keyframes bulbB{0%{opacity:.25}50%{opacity:1}}
+
+.hero h1{
+  font-size:clamp(2.6rem,6vw,4.3rem);font-weight:700;margin-block:22px 18px;color:#fff;
+  -webkit-text-stroke:9px var(--outline);paint-order:stroke fill;
+  text-shadow:0 6px 0 var(--outline);letter-spacing:.01em;
+}
+.hero h1 em{font-style:normal;color:var(--sun)}
+.lede{font-size:1.15rem;font-weight:700;max-width:30em;color:var(--ink-dark)}
+.cta{display:flex;flex-wrap:wrap;gap:16px;margin-block:28px 14px;align-items:center}
+
+/* chunky game buttons with LED rim */
+.gbtn{
+  --ang:0deg;position:relative;isolation:isolate;display:inline-block;text-decoration:none;border-radius:20px;padding:4px;
+  background:conic-gradient(from var(--ang),#ff5c9a,#ffc233,#4de8a8,#4cc9ff,#a97bff,#ff5c9a);
+  animation:spin 3.5s linear infinite;box-shadow:0 8px 0 var(--outline);transition:transform .1s,box-shadow .1s;
+}
+.gbtn::before{content:"";position:absolute;inset:0;border-radius:inherit;background:inherit;filter:blur(16px);opacity:.7;z-index:-1}
+.gbtn span{display:flex;align-items:center;gap:12px;border-radius:16px;padding:16px 30px;font-family:var(--font-display);font-weight:700;font-size:1.3rem;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.25);background:linear-gradient(180deg,#7be05f 0%,#35a83b 55%,#2a8a34 100%);box-shadow:inset 0 3px 0 rgba(255,255,255,.55),inset 0 -5px 0 rgba(0,0,0,.18)}
+.gbtn:hover{transform:translateY(3px);box-shadow:0 5px 0 var(--outline)}
+.gbtn:active{transform:translateY(8px);box-shadow:0 0 0 var(--outline)}
+.gbtn.blue span{background:linear-gradient(180deg,#6fd0ff 0%,#2f97f0 55%,#2272c9 100%)}
+.gbtn.violet span{background:linear-gradient(180deg,#8f9bff 0%,#5a63e6 55%,#4650c4 100%)}
+.gbtn.big span{font-size:1.45rem;padding:18px 34px}
+.gbtn svg{width:26px;height:26px;flex:none}
+@keyframes spin{to{--ang:360deg}}
+.pulse{animation:spin 3.5s linear infinite,pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{scale:1}50%{scale:1.04}}
+.hint{font-size:.95rem;font-weight:700}
+.hint a{color:var(--outline);font-weight:800}
+
+
+/* live players */
+.live{display:inline-flex;align-items:center;gap:10px;padding:10px 20px 10px 16px;border-radius:999px;text-decoration:none;background:#fff;color:var(--outline);border:4px solid var(--outline);box-shadow:0 5px 0 var(--outline);font-family:var(--font-display);font-weight:700;font-size:1.1rem;transition:transform .1s,box-shadow .1s}
+.live:hover{transform:translateY(2px);box-shadow:0 3px 0 var(--outline)}
+.live .dot{position:relative;width:14px;height:14px;border-radius:50%;background:#9aa6c8;flex:none}
+.live.on .dot{background:#22e07a;box-shadow:0 0 10px 3px rgba(34,224,122,.8);animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{50%{opacity:.45}}
+.live b{font-size:1.35rem;font-variant-numeric:tabular-nums;color:#1b9b4f;min-width:1ch;display:inline-block}
+.live:not(.on) b{color:#6b779c}
+.cta .live{margin-left:2px}
+
+/* phone */
+.phone-col{position:relative;display:flex;justify-content:center}
+.phone{
+  --ang:0deg;position:relative;isolation:isolate;width:min(100%,310px);padding:5px;border-radius:46px;
+  background:conic-gradient(from var(--ang),#ff5c9a,#ffc233,#4de8a8,#4cc9ff,#a97bff,#ff5c9a);
+  animation:spin 5s linear infinite;transform:rotate(4deg);box-shadow:0 14px 0 rgba(22,37,90,.35);
+}
+.phone::before{content:"";position:absolute;inset:0;border-radius:inherit;background:inherit;filter:blur(24px);opacity:.6;z-index:-1}
+.screen{border-radius:41px;overflow:hidden;background:var(--outline);border:7px solid var(--outline)}
+.screen svg{display:block;width:100%;height:auto}
+.sway{transform-box:fill-box;transform-origin:50% 100%;animation:sway 3.2s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.drift{animation:drift 26s linear infinite}
+@keyframes drift{from{transform:translateX(-40px)}to{transform:translateX(70px)}}
+.coin{position:absolute;width:54px;height:54px;animation:bob 2.6s ease-in-out infinite}
+.coin.a{left:-6px;top:90px}
+.coin.b{right:-10px;top:250px;animation-delay:-1s;width:44px;height:44px}
+.coin.c{left:12px;bottom:70px;animation-delay:-1.8s;width:36px;height:36px}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-14px) rotate(6deg)}}
+.badge{position:absolute;right:-6px;top:-4px;z-index:2;padding:8px 14px;border-radius:14px;background:var(--pink);color:#fff;border:3px solid var(--outline);box-shadow:0 4px 0 var(--outline);font-family:var(--font-display);font-weight:700;font-size:.95rem;transform:rotate(8deg)}
+
+/* hills + windmill */
+.hills{position:absolute;left:0;right:0;bottom:-1px;line-height:0;z-index:1;pointer-events:none}
+.hills svg{display:block;width:100%;height:130px}
+.mill{position:absolute;right:2.500%;bottom:60px;width:84px;z-index:1}
+.mill .blades{transform-origin:46px 36px;animation:rot 6s linear infinite}
+
+/* ============ NIGHT ARCADE ============ */
+.night{
+  position:relative;
+  background:
+    radial-gradient(1.6px 1.6px at 8% 14%,#fff 50%,transparent 52%),
+    radial-gradient(1.2px 1.2px at 24% 40%,#cfe3ff 50%,transparent 52%),
+    radial-gradient(1.8px 1.8px at 41% 9%,#fff 50%,transparent 52%),
+    radial-gradient(1.2px 1.2px at 58% 30%,#cfe3ff 50%,transparent 52%),
+    radial-gradient(1.6px 1.6px at 73% 12%,#fff 50%,transparent 52%),
+    radial-gradient(1.2px 1.2px at 89% 36%,#cfe3ff 50%,transparent 52%),
+    linear-gradient(180deg,var(--grass-deep) 0,#0f3d3a 90px,var(--night) 260px,#10204a 100%);
+  color:var(--ink-light);
+}
+.ticker{position:relative;overflow:hidden;background:#05081c;border-block:4px solid var(--outline);padding-block:14px;box-shadow:0 0 34px rgba(76,201,255,.25) inset}
+.ticker::after{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle at center,transparent 0 1.2px,rgba(5,8,28,.9) 1.7px);background-size:4px 4px}
+.track{display:flex;width:max-content;animation:run 36s linear infinite}
+.track p{flex:none;white-space:nowrap;font-family:var(--font-display);font-weight:600;font-size:1.6rem;letter-spacing:.06em;text-transform:uppercase;color:var(--sun);text-shadow:0 0 12px rgba(255,210,63,.9);padding-right:2.5rem}
+.track b{color:var(--mint);text-shadow:0 0 12px rgba(51,224,161,.9);font-weight:600}
+.track i{color:var(--pink);text-shadow:0 0 12px rgba(255,111,165,.9);font-style:normal}
+@keyframes run{to{transform:translateX(-50%)}}
+
+section.block{padding-block:80px 6px}
+.kicker{display:inline-block;font-family:var(--font-display);font-weight:600;font-size:.9rem;letter-spacing:.14em;text-transform:uppercase;color:var(--night);background:var(--mint);padding:5px 14px;border-radius:999px;box-shadow:0 0 18px rgba(51,224,161,.6)}
+.block h2{font-size:clamp(2rem,4.8vw,3.1rem);font-weight:700;color:#fff;margin-block:14px 30px;text-shadow:0 4px 0 var(--outline)}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;counter-reset:s}
+.steps li{
+  counter-increment:s;position:relative;padding:60px 24px 26px;border-radius:26px;
+  background:linear-gradient(180deg,#1b2a6b,var(--night-2));border:4px solid var(--c);
+  box-shadow:0 0 22px color-mix(in srgb,var(--c) 55%,transparent),0 8px 0 var(--outline);
+}
+.steps li::before{
+  content:counter(s);position:absolute;left:22px;top:-22px;display:grid;place-items:center;width:56px;height:56px;border-radius:50%;
+  font-family:var(--font-display);font-weight:700;font-size:1.7rem;color:var(--outline);background:var(--c);border:4px solid var(--outline);box-shadow:0 4px 0 var(--outline);
+}
+.steps li:nth-child(1){--c:var(--sun)}
+.steps li:nth-child(2){--c:var(--mint)}
+.steps li:nth-child(3){--c:var(--pink)}
+.steps h3{font-size:1.45rem;margin-bottom:8px;color:#fff}
+.steps p{color:var(--muted-light);font-size:1rem;font-weight:600}
+.steps code{font-family:var(--font-body);font-weight:800;color:var(--c)}
+
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.tile{padding:28px 24px;border-radius:26px;background:linear-gradient(180deg,#1b2a6b,var(--night-2));border:4px solid var(--c);box-shadow:0 0 22px color-mix(in srgb,var(--c) 45%,transparent),0 8px 0 var(--outline)}
+.tile:nth-child(1){--c:var(--sky-1)}
+.tile:nth-child(2){--c:var(--orange)}
+.tile:nth-child(3){--c:var(--violet)}
+.tile .ico{display:grid;place-items:center;width:62px;height:62px;border-radius:18px;background:var(--c);border:4px solid var(--outline);box-shadow:0 4px 0 var(--outline);margin-bottom:16px}
+.tile .ico svg{width:34px;height:34px}
+.tile h3{font-size:1.45rem;margin-bottom:8px;color:#fff}
+.tile p{color:var(--muted-light)}
+
+/* final marquee sign */
+.final{position:relative;margin:92px 0 0;padding:52px 26px;border-radius:30px;text-align:center;background:radial-gradient(100% 140% at 50% 0%,#2a3b9a,#141d52);border:5px solid var(--outline)}
+.final::before,.final::after{
+  content:"";position:absolute;inset:-12px;border-radius:40px;padding:8px;pointer-events:none;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+}
+.final::before{background:radial-gradient(circle,var(--sun) 0 3.200px,transparent 3.900px) 0 0/18px 18px;filter:drop-shadow(0 0 5px var(--sun));animation:bulbA 1s steps(1) infinite}
+.final::after{background:radial-gradient(circle,var(--pink) 0 3.200px,transparent 3.900px) 9px 9px/18px 18px;filter:drop-shadow(0 0 5px var(--pink));animation:bulbB 1s steps(1) infinite}
+.final h2{font-size:clamp(2rem,4.8vw,3rem);margin-bottom:10px;color:#fff;text-shadow:0 4px 0 var(--outline)}
+.final .lede{margin-inline:auto;color:var(--muted-light)}
+.final .cta{justify-content:center}
+.fine{max-width:44em;margin:18px auto 0;font-size:.95rem;color:var(--muted-light)}
+
+.ground{margin-top:70px;line-height:0}
+.ground svg{display:block;width:100%;height:80px}
+footer{padding:20px 16px 30px;background:#0a2a1a;color:#bfe8c8;text-align:center;font-size:.92rem;font-weight:700}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:34px;padding-block:20px 90px}
+  .phone-col{order:-1}
+  .phone{width:min(66%,260px);transform:none}
+  .sun{width:150px;height:150px;right:-20px;top:70px}
+  .steps,.tiles{grid-template-columns:1fr}
+  .steps{gap:34px}
+  section.block{padding-block:64px 0}
+  .gbtn{width:100%}
+  .gbtn span{justify-content:center}
+  .mill{display:none}
+  .badge{right:0}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+
+<div class="day">
+  <svg class="sun" viewBox="0 0 230 230" aria-hidden="true">
+    <g class="rays" fill="#ffd23f" opacity=".55">
+      <polygon points="115,0 125,52 105,52"/><polygon points="115,230 125,178 105,178"/>
+      <polygon points="0,115 52,105 52,125"/><polygon points="230,115 178,105 178,125"/>
+      <polygon points="34,34 76,68 62,82"/><polygon points="196,196 154,162 168,148"/>
+      <polygon points="196,34 162,76 148,62"/><polygon points="34,196 68,154 82,168"/>
+    </g>
+    <circle cx="115" cy="115" r="52" fill="#ffd23f" stroke="#16255a" stroke-width="5"/>
+    <circle cx="98" cy="108" r="5" fill="#16255a"/><circle cx="132" cy="108" r="5" fill="#16255a"/>
+    <path d="M98 128q17 14 34 0" fill="none" stroke="#16255a" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="86" cy="124" r="7" fill="#ff8fb1" opacity=".7"/><circle cx="144" cy="124" r="7" fill="#ff8fb1" opacity=".7"/>
+  </svg>
+  <div class="cloud c1" aria-hidden="true"><svg width="150" height="60" viewBox="0 0 150 60"><g fill="#fff" stroke="#16255a" stroke-width="4"><ellipse cx="75" cy="38" rx="62" ry="18"/><circle cx="52" cy="26" r="18"/><circle cx="88" cy="22" r="22"/></g><ellipse cx="75" cy="38" rx="56" ry="13" fill="#fff"/></svg></div>
+  <div class="cloud c2" aria-hidden="true"><svg width="150" height="60" viewBox="0 0 150 60"><g fill="#fff" stroke="#16255a" stroke-width="4"><ellipse cx="75" cy="38" rx="62" ry="18"/><circle cx="52" cy="26" r="18"/><circle cx="88" cy="22" r="22"/></g><ellipse cx="75" cy="38" rx="56" ry="13" fill="#fff"/></svg></div>
+  <div class="cloud c3" aria-hidden="true"><svg width="150" height="60" viewBox="0 0 150 60"><g fill="#fff" stroke="#16255a" stroke-width="4"><ellipse cx="75" cy="38" rx="62" ry="18"/><circle cx="52" cy="26" r="18"/><circle cx="88" cy="22" r="22"/></g><ellipse cx="75" cy="38" rx="56" ry="13" fill="#fff"/></svg></div>
+
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="#top">
+        <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="19.500" fill="#fff" stroke="#16255a" stroke-width="3.500"/><path d="M22 34V20" stroke="#2a8a34" stroke-width="3.500" stroke-linecap="round"/><path d="M22 23c-1-7-7-9-13-8 0 7 5 10 13 8z" fill="#5fd04a" stroke="#16255a" stroke-width="2"/><path d="M22 19c1-6 6-9 12-9 1 7-4 10-12 9z" fill="#8fe872" stroke="#16255a" stroke-width="2"/></svg>
+        Nông Trại Vui Vẻ
+      </a>
+      <nav class="nav" aria-label="Điều hướng">
+        <a href="#cai-dat">Cách cài</a>
+        <a href="#vi-sao">Vì sao chơi</a>
+        <a href="https://discord.gg/sfvJayPCT" target="_blank" rel="noopener">Discord</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <div class="hero">
+        <div>
+          <span class="sign">Online · Nhiều người chơi</span>
+          <h1>Trồng cây, nuôi bầy, cùng <em>cả server!</em></h1>
+          <p class="lede">Gieo hạt, thu hoạch, trang trí nông trại và kết bạn với người chơi khác. Cài bản Android trong vài phút, hoặc chơi thẳng trên trình duyệt.</p>
+          <div class="cta">
+            <a class="gbtn big pulse" href="https://drive.google.com/uc?export=download&id=1FKFl8TKQN8LF0QTmn8XglMtOaJov6FHj" target="_blank" rel="noopener">
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/></svg>
+                Tải APK Android
+              </span>
+            </a>
+            <a class="gbtn blue" href="https://nongtrai-online1-1.onrender.com/" target="_blank" rel="noopener"><span>Chơi ngay trên web</span></a>
+          </div>
+          <div class="cta" style="margin-top:6px">
+            <a class="live" id="live" href="https://nongtrai-online1-1.onrender.com/" target="_blank" rel="noopener" aria-live="polite"><i class="dot"></i><span><b id="liveN">–</b> <span id="liveT">người đang chơi</span></span></a>
+          </div>
+          <p class="hint">Không tải được? <a href="https://drive.google.com/file/d/1FKFl8TKQN8LF0QTmn8XglMtOaJov6FHj/view?usp=sharing" target="_blank" rel="noopener">Mở file trên Google Drive</a></p>
+        </div>
+
+        <div class="phone-col" aria-hidden="true">
+          <span class="badge">Android 6.0+</span>
+          <svg class="coin a" viewBox="0 0 60 60"><circle cx="30" cy="30" r="25" fill="#ffd23f" stroke="#16255a" stroke-width="4"/><circle cx="30" cy="30" r="16" fill="none" stroke="#e8a900" stroke-width="3"/><path d="M30 20v20M25 25h8a4 4 0 0 1 0 8h-6" fill="none" stroke="#e8a900" stroke-width="3" stroke-linecap="round"/></svg>
+          <svg class="coin b" viewBox="0 0 60 60"><circle cx="30" cy="30" r="25" fill="#ffd23f" stroke="#16255a" stroke-width="4"/><circle cx="30" cy="30" r="16" fill="none" stroke="#e8a900" stroke-width="3"/><path d="M30 20v20M25 25h8a4 4 0 0 1 0 8h-6" fill="none" stroke="#e8a900" stroke-width="3" stroke-linecap="round"/></svg>
+          <svg class="coin c" viewBox="0 0 60 60"><circle cx="30" cy="30" r="25" fill="#ffd23f" stroke="#16255a" stroke-width="4"/><circle cx="30" cy="30" r="16" fill="none" stroke="#e8a900" stroke-width="3"/></svg>
+          <div class="phone">
+            <div class="screen">
+              <svg viewBox="0 0 260 470" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="fsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd4ff"/><stop offset="1" stop-color="#e2f7ff"/></linearGradient>
+                  <linearGradient id="fhill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fe872"/><stop offset="1" stop-color="#5fd04a"/></linearGradient>
+                </defs>
+                <rect width="260" height="470" fill="url(#fsky)"/>
+                <circle cx="206" cy="62" r="26" fill="#ffd23f"/>
+                <g class="drift" fill="#fff" opacity=".95"><ellipse cx="60" cy="70" rx="30" ry="11"/><ellipse cx="82" cy="62" rx="20" ry="12"/><ellipse cx="42" cy="64" rx="16" ry="9"/></g>
+                <path d="M0 190 Q70 140 140 175 T260 160 V470 H0Z" fill="url(#fhill)"/>
+                <path d="M0 215 Q90 185 170 205 T260 200 V470 H0Z" fill="#6fdc57"/>
+                <g transform="translate(26 38)">
+                  <rect x="0" y="82" width="46" height="34" fill="#e9573f" stroke="#16255a" stroke-width="3"/>
+                  <path d="M-6 84 L23 58 L52 84Z" fill="#b8402f" stroke="#16255a" stroke-width="3" stroke-linejoin="round"/>
+                  <rect x="17" y="94" width="12" height="22" fill="#7b3a26"/>
+                </g>
+                <g id="plots"></g>
+                <rect x="30" y="418" width="200" height="32" rx="16" fill="#16255a"/>
+                <text x="130" y="440" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="16" fill="#ffd23f">Thu hoạch thôi!</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <svg class="mill" viewBox="0 0 92 130" aria-hidden="true">
+    <path d="M26 128 L34 40 H58 L66 128Z" fill="#f4c27a" stroke="#16255a" stroke-width="4" stroke-linejoin="round"/>
+    <rect x="40" y="96" width="12" height="32" rx="6" fill="#7b3a26"/>
+    <path d="M30 42 L46 18 L62 42Z" fill="#e9573f" stroke="#16255a" stroke-width="4" stroke-linejoin="round"/>
+    <g class="blades" stroke="#16255a" stroke-width="4" stroke-linejoin="round"><path d="M46 36 L40 -4 L54 -4Z" fill="#fff" transform="rotate(0 46 36)"/><path d="M46 36 L40 -4 L54 -4Z" fill="#fff" transform="rotate(90 46 36)"/><path d="M46 36 L40 -4 L54 -4Z" fill="#fff" transform="rotate(180 46 36)"/><path d="M46 36 L40 -4 L54 -4Z" fill="#fff" transform="rotate(270 46 36)"/></g>
+    <circle cx="46" cy="36" r="6" fill="#ffd23f" stroke="#16255a" stroke-width="3"/>
+  </svg>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 130" preserveAspectRatio="none"><path d="M0 60 Q200 10 420 50 T820 40 T1200 30 V130 H0Z" fill="#8fe872"/><path d="M0 84 Q240 40 500 76 T1000 66 T1200 60 V130 H0Z" fill="#5fd04a"/><path d="M0 108 Q300 78 600 100 T1200 92 V130 H0Z" fill="#1f7a3a"/></svg>
+  </div>
+</div>
+
+<div class="night">
+  <div class="ticker" aria-hidden="true"><div class="track" id="track"></div></div>
+
+  <div class="wrap">
+    <section class="block" id="cai-dat">
+      <span class="kicker">Cài đặt</span>
+      <h2>Ba bước để vào game</h2>
+      <ol class="steps">
+        <li>
+          <h3>Tải file APK</h3>
+          <p>Bấm nút <code>Tải APK Android</code> ở đầu trang. Nếu Google Drive hiện cảnh báo quét virus, chọn <code>Vẫn tải xuống</code>.</p>
+        </li>
+        <li>
+          <h3>Cho phép cài đặt</h3>
+          <p>Mở file vừa tải. Khi máy hỏi, bật <code>Cho phép cài ứng dụng từ nguồn này</code>, rồi bấm <code>Cài đặt</code>. Cần Android 6.0 trở lên.</p>
+        </li>
+        <li>
+          <h3>Mở app và vào chơi</h3>
+          <p>Lần mở đầu có thể chờ khoảng một phút để server khởi động. Nếu đăng nhập Google không chạy trong app, hãy dùng <code>Discord</code> hoặc chơi trên web.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="block" id="vi-sao">
+      <span class="kicker">Vì sao chơi</span>
+      <h2>Một nông trại, nhiều người cùng làm</h2>
+      <div class="tiles">
+        <div class="tile">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#16255a" stroke-width="2.800" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c0-3.500 3-6 6.500-6s6.500 2.500 6.500 6"/><circle cx="17" cy="9" r="2.500"/><path d="M17.500 14c2.500 0 4.500 1.800 4.500 4.500"/></svg></div>
+          <h3>Chung một server</h3>
+          <p>Người chơi trên điện thoại và trên web gặp nhau trong cùng một thế giới, không chia thành hai bản.</p>
+        </div>
+        <div class="tile">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#16255a" stroke-width="2.800" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
+          <h3>Mở là chơi</h3>
+          <p>Không cần cài đặt phức tạp. Dùng trình duyệt hoặc APK nhẹ, game luôn tự cập nhật phiên bản mới.</p>
+        </div>
+        <div class="tile">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#16255a" stroke-width="2.800" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.600 7.100L4 20l1-4.600A8 8 0 1 1 21 12Z"/></svg></div>
+          <h3>Có cộng đồng</h3>
+          <p>Vào Discord để hỏi cách chơi, báo lỗi, nhận thông báo cập nhật và rủ bạn bè cùng làm nông.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="final">
+      <h2>Sẵn sàng ra đồng chưa?</h2>
+      <p class="lede">Chọn cách vào game phù hợp với bạn.</p>
+      <div class="cta">
+        <a class="gbtn" href="https://drive.google.com/uc?export=download&id=1FKFl8TKQN8LF0QTmn8XglMtOaJov6FHj" target="_blank" rel="noopener"><span>Tải APK Android</span></a>
+        <a class="gbtn blue" href="https://nongtrai-online1-1.onrender.com/" target="_blank" rel="noopener"><span>Chơi trên web</span></a>
+        <a class="gbtn violet" href="https://discord.gg/sfvJayPCT" target="_blank" rel="noopener">
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.800" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.600 7.100L4 20l1-4.600A8 8 0 1 1 21 12Z"/></svg>
+            Vào Discord
+          </span>
+        </a>
+      </div>
+      <p class="fine">Server miễn phí sẽ tạm ngủ khi ít người chơi, nên lần vào đầu tiên có thể chậm. Chờ khoảng một phút rồi tải lại trang là được.</p>
+    </section>
+  </div>
+
+  <div class="ground" aria-hidden="true">
+    <svg viewBox="0 0 1200 80" preserveAspectRatio="none"><path d="M0 36 Q150 0 300 28 T600 26 T900 30 T1200 20 V80 H0Z" fill="#14683a"/><path d="M0 56 Q200 30 400 50 T800 48 T1200 44 V80 H0Z" fill="#0a2a1a"/></svg>
+  </div>
+  <footer>Nông Trại Vui Vẻ · Game nông trại online · Bản Android cần Android 6.0 trở lên</footer>
+</div>
+
+<script>
+(function(){
+  var words=['Trồng cây','<b>Thu hoạch</b>','<i>Nuôi bầy</i>','Chơi chung server','<b>Tải APK</b>','<i>Vào Discord</i>'];
+  var s='';
+  for(var k=0;k<2;k++){for(var j=0;j<words.length;j++){s+=words[j]+' &nbsp;✦&nbsp; ';}}
+  var t='<p>'+s+'</p>';
+  document.getElementById('track').innerHTML=t+t;
+
+  
+  // live players: reads the real online count from the game server (works when this page is served by the same server)
+  var live=document.getElementById('live'),ln=document.getElementById('liveN'),lt=document.getElementById('liveT');
+  function poll(){
+    fetch('/api/health',{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){
+      if(d&&typeof d.online==='number'){ln.textContent=d.online;lt.textContent='người đang chơi';live.classList.add('on')}
+      else throw 0;
+    }).catch(function(){ln.textContent='–';lt.textContent='đang kết nối server';live.classList.remove('on')});
+  }
+  poll();setInterval(poll,15000);
+
+  var NS='http://www.w3.org/2000/svg',g=document.getElementById('plots');
+  function el(n,a,p){var e=document.createElementNS(NS,n);for(var q in a)e.setAttribute(q,a[q]);(p||g).appendChild(e);return e}
+  var kinds=['sprout','pumpkin','flower','wheat','flower','sprout','wheat','pumpkin','sprout','pumpkin','flower','wheat'];
+  for(var r=0;r<4;r++){
+    for(var c=0;c<3;c++){
+      var x=30+c*68,y=238+r*44,k=kinds[r*3+c];
+      el('rect',{x:x,y:y,width:64,height:40,rx:9,fill:'#8a5a3b',stroke:'#16255a','stroke-width':2.500});
+      el('rect',{x:x+4,y:y+4,width:56,height:32,rx:6,fill:'#6f4528'});
+      var cx=x+32,by=y+32;
+      var grp=el('g',{'class':'sway',style:'animation-delay:-'+((r*3+c)*0.27).toFixed(2)+'s'});
+      if(k==='sprout'){
+        el('path',{d:'M'+cx+' '+by+'V'+(by-12),stroke:'#2f8f3a','stroke-width':3,'stroke-linecap':'round'},grp);
+        el('path',{d:'M'+cx+' '+(by-8)+'c-1-7-7-9-12-8 0 6 5 10 12 8z',fill:'#4fbf4f'},grp);
+        el('path',{d:'M'+cx+' '+(by-10)+'c1-6 6-9 11-8 0 6-4 9-11 8z',fill:'#8fe872'},grp);
+      }else if(k==='pumpkin'){
+        el('ellipse',{cx:cx,cy:by-9,rx:13,ry:10,fill:'#ff8a2b'},grp);
+        el('ellipse',{cx:cx-6,cy:by-9,rx:5,ry:9,fill:'#ffa24d'},grp);
+        el('rect',{x:cx-2,y:by-22,width:4,height:6,rx:2,fill:'#3f9a3a'},grp);
+      }else if(k==='flower'){
+        el('path',{d:'M'+cx+' '+by+'V'+(by-14),stroke:'#2f8f3a','stroke-width':3,'stroke-linecap':'round'},grp);
+        [[-6,0],[6,0],[0,-6],[0,6]].forEach(function(o){el('circle',{cx:cx+o[0],cy:by-18+o[1],r:5.500,fill:'#ff8fb1'},grp)});
+        el('circle',{cx:cx,cy:by-18,r:4,fill:'#ffd166'},grp);
+      }else{
+        [-8,0,8].forEach(function(o){
+          el('path',{d:'M'+(cx+o)+' '+by+'V'+(by-18),stroke:'#d9a93a','stroke-width':2.500,'stroke-linecap':'round'},grp);
+          el('ellipse',{cx:cx+o,cy:by-21,rx:3,ry:6,fill:'#ffd166'},grp);
+        });
+      }
+    }
+  }
+})();
+</script>

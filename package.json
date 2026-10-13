@@ -1,0 +1,25 @@
+{
+  "name": "nongtrai-online",
+  "version": "1.0.0",
+  "description": "Nông Trại Vui Vẻ – server đa người chơi",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "cap:sync": "npx cap sync android"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.0",
+    "express": "^4.19.2",
+    "google-auth-library": "^9.14.0",
+    "mongodb": "^6.9.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^7.6.9",
+    "@capacitor/cli": "^7.6.9",
+    "@capacitor/core": "^7.6.9"
+  }
+}
