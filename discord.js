@@ -8,7 +8,7 @@ module.exports = function start(ctx) {
     Client, GatewayIntentBits, Partials, REST, Routes, SlashCommandBuilder,
     Events, ChannelType, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder,
     ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle,
-    OverwriteType
+    OverwriteType, MessageFlags
   } = require('discord.js');
 
   const E = process.env;
@@ -235,7 +235,9 @@ module.exports = function start(ctx) {
     const catId = setup.cats.tickets;
     const name = ('ticket-' + i.user.username).toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 20);
     const exist = guild.channels.cache.find(c => c.parentId === catId && c.topic === 'ticket:' + i.user.id);
-    if (exist) return i.reply({ content: 'Bạn đã có ticket: <#' + exist.id + '>', ephemeral: true });
+    const replyOpt = { content: 'Bạn đã có ticket: <#' + (exist ? exist.id : '') + '>', flags: MessageFlags.Ephemeral };
+    if (exist) return i.deferred || i.replied ? i.editReply(replyOpt) : i.reply(replyOpt);
+
     const staff = setup.roles.staff || setup.roles.admin;
     const ch = await guild.channels.create({
       name, type: ChannelType.GuildText, parent: catId || undefined, topic: 'ticket:' + i.user.id,
@@ -256,11 +258,13 @@ module.exports = function start(ctx) {
         .setDescription('Mô tả vấn đề tại đây. Staff bấm **Nhận đơn** rồi trả lời. Đóng khi xong.')],
       components: [row]
     });
-    await i.reply({ content: '✅ Đã mở ticket: <#' + ch.id + '>', ephemeral: true });
+    const resMsg = '✅ Đã mở ticket: <#' + ch.id + '>';
+    if (i.deferred || i.replied) await i.editReply({ content: resMsg });
+    else await i.reply({ content: resMsg, flags: MessageFlags.Ephemeral });
   }
 
   async function doCheckin(i, ma) {
-    const r = ctx.checkinByCode ? ctx.checkinByCode(ma, i.user.id) : { ok:false, msg:'Chưa hỗ trợ' };
+    const r = ctx.checkinByCode ? ctx.checkinByCode(ma, i.user.id) : { ok: false, msg: 'Chưa hỗ trợ' };
     return (r.ok ? '✅ ' : '❌ ') + r.msg;
   }
 
@@ -294,27 +298,33 @@ module.exports = function start(ctx) {
   client.on(Events.InteractionCreate, async i => {
     console.log('📥 Interaction:', i.type, i.commandName || i.customId || 'unknown', '| user:', i.user?.username, '| guild:', i.guild?.name);
     try {
-      if (!i.isButton() && !i.isModalSubmit() && !i.deferred && !i.replied && i.isChatInputCommand()) {
-        try { await i.deferReply({ ephemeral: true }); } catch (e) { /* bỏ */ }
+      // 1. CHỈ DEFER REPLIES CHO LỆNH SLASH HOẶC NÚT BẤM CẦN XỬ LÝ LÂU (TRỪ MODAL SHOW)
+      if (i.isChatInputCommand()) {
+        await i.deferReply({ flags: MessageFlags.Ephemeral }).catch(() => {});
+      } else if (i.isButton() && i.customId !== 'checkin_modal') {
+        await i.deferReply({ flags: MessageFlags.Ephemeral }).catch(() => {});
+      } else if (i.isModalSubmit()) {
+        await i.deferReply({ flags: MessageFlags.Ephemeral }).catch(() => {});
       }
 
+      // 2. XỬ LÝ BUTTON
       if (i.isButton()) {
         if (i.customId === 'ticket_open') return openTicket(i);
         if (i.customId === 'ticket_claim') {
-          if (!need(i, 2)) return i.reply({ content: 'Chỉ staff/mod nhận đơn.', ephemeral: true });
-          await i.reply({ content: `✋ **${i.user.username}** đã nhận ticket này.` });
-          return;
+          if (!need(i, 2)) return i.editReply({ content: 'Chỉ staff/mod nhận đơn.' });
+          await i.channel.send({ content: `✋ **${i.user.username}** đã nhận ticket này.` }).catch(() => {});
+          return i.editReply({ content: 'Đã nhận ticket!' });
         }
         if (i.customId === 'ticket_close') {
-          if (!need(i, 2) && !(i.channel.topic || '').includes(i.user.id)) return i.reply({ content: 'Không đủ quyền đóng.', ephemeral: true });
-          await i.reply('🔒 Đóng ticket sau 3s...');
+          if (!need(i, 2) && !(i.channel.topic || '').includes(i.user.id)) return i.editReply({ content: 'Không đủ quyền đóng.' });
+          await i.editReply('🔒 Đóng ticket sau 3s...');
           setTimeout(() => i.channel.delete('Đóng ticket').catch(() => {}), 3000);
           return;
         }
         if (i.customId === 'report_claim') {
-          if (!need(i, 2)) return i.reply({ content: 'Chỉ staff nhận đơn tố cáo.', ephemeral: true });
-          await i.update({ content: i.message.content + `\n✅ **${i.user.username}** đã nhận đơn.`, components: [] }).catch(() => i.reply({ content: 'Đã nhận đơn.', ephemeral: true }));
-          return;
+          if (!need(i, 2)) return i.editReply({ content: 'Chỉ staff nhận đơn tố cáo.' });
+          await i.message.edit({ content: i.message.content + `\n✅ **${i.user.username}** đã nhận đơn.`, components: [] }).catch(() => {});
+          return i.editReply({ content: 'Đã nhận đơn tố cáo!' });
         }
         if (i.customId === 'checkin_modal') {
           const modal = new ModalBuilder().setCustomId('checkin_form').setTitle('Điểm danh Nông Trại');
@@ -324,27 +334,32 @@ module.exports = function start(ctx) {
           return i.showModal(modal);
         }
       }
+
+      // 3. XỬ LÝ MODAL SUBMIT
       if (i.isModalSubmit() && i.customId === 'checkin_form') {
-        if (!i.deferred && !i.replied) await i.deferReply({ ephemeral: true });
         const msg = await doCheckin(i, i.fields.getTextInputValue('ma'));
-        return i.editReply(msg);
+        return i.editReply({ content: msg });
       }
+
       if (!i.isChatInputCommand()) return;
+
+      // 4. XỬ LÝ SLASH COMMANDS
       const n = i.commandName, g = k => i.options.get(k) && i.options.get(k).value;
       if (n === 'setup') {
         if (!need(i, 4) && !i.memberPermissions.has(PermissionFlagsBits.Administrator)) {
           return i.editReply({ content: '❌ Chỉ Owner/Admin server dùng /setup' });
         }
         const sub = i.options.getSubcommand();
-        if (sub === 'role') { await setupRoles(i.guild); return i.editReply('✅ Đã setup role (quyền + 15 role dễ thương). Dùng `/caprole` để cấp — chỉ admin.'); }
+        if (sub === 'role') { await setupRoles(i.guild); return i.editReply({ content: '✅ Đã setup role (quyền + 15 role dễ thương). Dùng `/caprole` để cấp — chỉ admin.' }); }
         if (sub === 'ticket') {
           const ch = setup.channels.ticket ? await i.guild.channels.fetch(setup.channels.ticket) : i.channel;
           await postTicketPanel(ch);
-          return i.editReply('✅ Đã gửi panel ticket.');
+          return i.editReply({ content: '✅ Đã gửi panel ticket.' });
         }
         await setupAll(i.guild);
-        return i.editReply('✅ **Setup all xong!** Đã tạo role, kênh thông báo, điểm danh, hướng dẫn, tải game, ủng hộ, ticket, báo cáo, log đăng nhập.');
+        return i.editReply({ content: '✅ **Setup all xong!** Đã tạo role, kênh thông báo, điểm danh, hướng dẫn, tải game, ủng hộ, ticket, báo cáo, log đăng nhập.' });
       }
+
       const actor = { role: actorRole(i), label: 'Discord:' + i.user.username };
       let msg;
 
@@ -437,11 +452,18 @@ module.exports = function start(ctx) {
           msg = (r.ok ? '✅ ' : '❌ ') + r.msg;
         }
       }
-      if (i.deferred || i.replied) await i.editReply({ content: msg || 'OK', allowedMentions: { parse: [] } });
-      else await i.reply({ content: msg || 'OK', ephemeral: true, allowedMentions: { parse: [] } });
+
+      if (i.deferred || i.replied) {
+        await i.editReply({ content: msg || 'OK', allowedMentions: { parse: [] } });
+      } else {
+        await i.reply({ content: msg || 'OK', flags: MessageFlags.Ephemeral, allowedMentions: { parse: [] } });
+      }
     } catch (e) {
       console.error('❌ Lỗi xử lý interaction:', e);
-      try { if (i.deferred || i.replied) await i.editReply('❌ Lỗi: ' + e.message); else await i.reply({ content: '❌ ' + e.message, ephemeral: true }); } catch (x) { /* */ }
+      try {
+        if (i.deferred || i.replied) await i.editReply({ content: '❌ Lỗi: ' + e.message });
+        else await i.reply({ content: '❌ ' + e.message, flags: MessageFlags.Ephemeral });
+      } catch (x) { /* bỏ */ }
     }
   });
 
