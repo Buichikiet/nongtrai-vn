@@ -152,7 +152,6 @@ const PERM = {
   setrole: 4
 };
 
-// Hàm đảm bảo save object có đủ field
 function ensureSave(u) {
   if (!u.save) u.save = {
     coins: 0, lv: 1, xp: 0, map: 1,
@@ -266,7 +265,6 @@ function checkinByCode(code, discordId) {
   u.lastCheckin = today();
   ensureSave(u);
   const coins = 80 + u.save.lv * 12;
-  // Cộng 1 level mỗi lần điểm danh
   u.save.lv = Math.min(99, u.save.lv + 1);
   u.save.xp = 0;
   sendTo(u.code, { t: 'update_level', lv: u.save.lv });
